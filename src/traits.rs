@@ -4,13 +4,16 @@ use as_slice::AsSlice;
 
 use crate::sealed;
 
+/// `slice[start..end]` but by value
 pub trait IntoSlice<I>: AsSlice {
+    /// The result of the slicing operation
     type Slice: AsSlice<Element = <Self as AsSlice>::Element>
         + IntoSlice<I>
         + IntoSliceFrom<I>
         + IntoSliceTo<I>
         + Truncate<I>;
 
+    /// `slice[start..end]` but by value
     fn into_slice(self, start: I, length: I) -> Self::Slice;
 }
 
@@ -40,12 +43,15 @@ where
     }
 }
 
+/// `slice[start..]` but by value
 pub trait IntoSliceFrom<I>: AsSlice {
+    /// The result of the slicing operation
     type SliceFrom: AsSlice<Element = <Self as AsSlice>::Element>
         + IntoSlice<I>
         + IntoSliceFrom<I>
         + IntoSliceTo<I>;
 
+    /// `slice[start..]` but by value
     fn into_slice_from(self, start: I) -> Self::SliceFrom;
 }
 
@@ -71,13 +77,16 @@ where
     }
 }
 
+/// `slice[..end]` but by value
 pub trait IntoSliceTo<I>: AsSlice {
+    /// The result of the slicing operation
     type SliceTo: AsSlice<Element = <Self as AsSlice>::Element>
         + IntoSlice<I>
         + IntoSliceFrom<I>
         + IntoSliceTo<I>
         + Truncate<I>;
 
+    /// `slice[..end]` but by value
     fn into_slice_to(self, end: I) -> Self::SliceTo;
 }
 
@@ -103,8 +112,12 @@ where
     }
 }
 
+/// Truncate a slice in place
 pub trait Truncate<I> {
-    fn truncate(&mut self, len: I);
+    /// Shortens the slice to the requested `length`
+    ///
+    /// This is a no-operation if `length` > `self.len()`
+    fn truncate(&mut self, length: I);
 }
 
 impl<'a, T, I> Truncate<I> for &'a [T]
